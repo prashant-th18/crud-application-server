@@ -13,7 +13,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// The below line means that, if we have a request on "/uploads", then, it should be considered that, we are statically located at the uploads folder 
+// The below line means that, if we have a request on "/uploads", then, it should be considered that, we are statically located at the uploads folder
 app.use("/uploads", express.static("./uploads"));
 app.use(router);
 

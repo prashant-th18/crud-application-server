@@ -54,8 +54,32 @@ exports.register = async (req, res, next) => {
 
 // Gets data of all users
 exports.getDetails = async (req, res, next) => {
+	const search = req.query.search || "";
+	const gender = req.query.gender || "";
+	const status = req.query.status || "";
+	const sort = req.query.sort || "";
+
+	const query = {
+		fname: {
+			$regex: search,
+			$options: "i", // This means that, the text will match irrespective of uppercase/lowercase
+		},
+	};
+
+	// Handling gender
+	if (req.query.gender !== "All") {
+		query.gender = gender;
+	}
+
+	// Handling Status
+	if (req.query.status !== "All") {
+		query.status = status;
+	}
+
 	try {
-		const data = await User.find();
+		const data = await User.find(query).sort({
+			dateCreated: sort === "new" ? -1 : 1,
+		});
 		return res.status(200).json(data);
 	} catch (err) {
 		res.status(401).json(err);
@@ -132,5 +156,36 @@ exports.editData = async (req, res, next) => {
 		console.log(err);
 		res.status(401).json(err);
 		console.log(`Catch Block Error`);
+	}
+};
+
+exports.deleteUser = async (req, res, next) => {
+	const id = req.params.id;
+
+	try {
+		const deletedUser = await User.findByIdAndDelete({ _id: id });
+		res.status(200).json(deletedUser);
+	} catch (err) {
+		res.status(401).json(err);
+	}
+};
+
+exports.editStatus = async (req, res, next) => {
+	const id = req.params.id;
+
+	const data = req.body;
+
+	console.log("in user", data);
+
+	try {
+		const newUser = await User.findByIdAndUpdate(
+			{ _id: id },
+			{ status: data.status },
+			{ new: true }
+		);
+		res.status(200).json(newUser);
+	} catch (err) {
+		console.log(err);
+		res.status(401).json(err);
 	}
 };

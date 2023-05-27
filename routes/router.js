@@ -13,4 +13,8 @@ router.get("/user/:id", user.getUserData);
 
 router.put("/user/edit/:id", upload.single("user_profile"), user.editData);
 
+router.delete("/user/delete/:id", user.deleteUser);
+
+router.put("/user/status/:id", user.editStatus);
+
 module.exports = router;
