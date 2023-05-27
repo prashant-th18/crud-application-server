@@ -60,6 +60,8 @@ exports.getDetails = async (req, res, next) => {
 	const gender = req.query.gender || "";
 	const status = req.query.status || "";
 	const sort = req.query.sort || "";
+	const page = req.query.page || 1;
+	const ITEMS_PER_PAGE = 6;
 
 	const query = {
 		fname: {
@@ -79,10 +81,25 @@ exports.getDetails = async (req, res, next) => {
 	}
 
 	try {
-		const data = await User.find(query).sort({
-			dateCreated: sort === "new" ? -1 : 1,
+		const skip = (page - 1) * ITEMS_PER_PAGE;
+
+		const count = await User.countDocuments(query);
+
+		const data = await User.find(query)
+			.sort({
+				dateCreated: sort === "new" ? -1 : 1,
+			})
+			.limit(ITEMS_PER_PAGE)
+			.skip(skip);
+
+		const pageCount = Math.floor((count + ITEMS_PER_PAGE - 1) / ITEMS_PER_PAGE);
+		return res.status(200).json({
+			Pagination: {
+				count,
+				pageCount,
+			},
+			data,
 		});
-		return res.status(200).json(data);
 	} catch (err) {
 		res.status(401).json(err);
 	}
