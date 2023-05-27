@@ -17,4 +17,6 @@ router.delete("/user/delete/:id", user.deleteUser);
 
 router.put("/user/status/:id", user.editStatus);
 
+router.get("/userexport", user.exportUser);
+
 module.exports = router;

@@ -15,6 +15,7 @@ app.use(express.json());
 
 // The below line means that, if we have a request on "/uploads", then, it should be considered that, we are statically located at the uploads folder
 app.use("/uploads", express.static("./uploads"));
+app.use("/files", express.static("./public/files"));
 app.use(router);
 
 mongoose

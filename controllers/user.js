@@ -1,5 +1,7 @@
 const moment = require("moment/moment");
 const User = require("../models/User");
+const fs = require("fs");
+const csv = require("fast-csv");
 
 exports.register = async (req, res, next) => {
 	// req.file will contain the attached file with the request (the userprofile image)
@@ -67,12 +69,12 @@ exports.getDetails = async (req, res, next) => {
 	};
 
 	// Handling gender
-	if (req.query.gender !== "All") {
+	if (gender !== "All") {
 		query.gender = gender;
 	}
 
 	// Handling Status
-	if (req.query.status !== "All") {
+	if (status !== "All") {
 		query.status = status;
 	}
 
@@ -186,6 +188,57 @@ exports.editStatus = async (req, res, next) => {
 		res.status(200).json(newUser);
 	} catch (err) {
 		console.log(err);
+		res.status(401).json(err);
+	}
+};
+
+exports.exportUser = async (req, res, next) => {
+	// Export data to csv file
+	try {
+		const usersData = await User.find();
+
+		const csvStream = csv.format({ headers: true });
+
+		if (!fs.existsSync("public/files/export")) {
+			if (!fs.existsSync("public/files")) {
+				fs.mkdirSync("public/files");
+			}
+
+			fs.mkdirSync("./public/files/export");
+		}
+
+		const writableStream = fs.createWriteStream(
+			"public/files/export/users.csv"
+		);
+
+		csvStream.pipe(writableStream);
+
+		writableStream.on("finish", () => {
+			res.json({
+				downloadUrl: `http://localhost:6010/files/export/users.csv`,
+			});
+		});
+
+		if (usersData.length > 0) {
+			usersData.map((user) => {
+				csvStream.write({
+					FirstName: user.fname ? user.fname : "-",
+					LastName: user.lname ? user.lname : "-",
+					Email: user.email ? user.email : "-",
+					Phone: user.mobile ? user.mobile : "-",
+					Gender: user.gender ? user.gender : "-",
+					Status: user.status ? user.status : "-",
+					Profile: user.profile ? user.profile : "-",
+					Location: user.location ? user.location : "-",
+					DateCreated: user.dateCreated ? user.dateCreated : "-",
+					DateUpdated: user.dateUpdated ? user.dateUpdated : "-",
+				});
+			});
+		}
+
+		csvStream.end();
+		writableStream.end();
+	} catch (err) {
 		res.status(401).json(err);
 	}
 };
