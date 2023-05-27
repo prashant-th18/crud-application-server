@@ -2,6 +2,7 @@ const moment = require("moment/moment");
 const User = require("../models/User");
 const fs = require("fs");
 const csv = require("fast-csv");
+const BASE_URL = process.env.BASE_URL;
 
 exports.register = async (req, res, next) => {
 	// req.file will contain the attached file with the request (the userprofile image)
@@ -232,7 +233,7 @@ exports.exportUser = async (req, res, next) => {
 
 		writableStream.on("finish", () => {
 			res.json({
-				downloadUrl: `http://localhost:6010/files/export/users.csv`,
+				downloadUrl: `${BASE_URL}/files/export/users.csv`,
 			});
 		});
 
