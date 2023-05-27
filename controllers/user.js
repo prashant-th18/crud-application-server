@@ -195,8 +195,6 @@ exports.editStatus = async (req, res, next) => {
 
 	const data = req.body;
 
-	console.log("in user", data);
-
 	try {
 		const newUser = await User.findByIdAndUpdate(
 			{ _id: id },
@@ -222,7 +220,7 @@ exports.exportUser = async (req, res, next) => {
 				fs.mkdirSync("public/files");
 			}
 
-			fs.mkdirSync("./public/files/export");
+			fs.mkdirSync("public/files/export");
 		}
 
 		const writableStream = fs.createWriteStream(
